@@ -56,6 +56,11 @@ Saat koneksi terhubung, motor menginisialisasi negosiasi sesi keamanan kriptogra
      ```text
      30 59 30 13 06 07 2a 86 48 ce 3d 02 01 06 08 2a 86 48 ce 3d 03 01 07 03 42 00 04 [64-byte X,Y point]
      ```
+
+   > [!NOTE]
+   > **Keamanan & Status Privasi Kunci Publik**:
+   > - Deretan 27-byte awalan (`30 59 30 13 06 07 2a 86 48 ce 3d 02 01 06 08 2a 86 48 ce 3d 03 01 07 03 42 00 04`) adalah **ASN.1 DER header standar internasional (RFC 5480)** yang mendefinisikan algoritma EC Public Key kurva terbuka NIST P-256 (`prime256v1`). Header ini identik di semua implementasi TLS/ECDH standar dunia.
+   > - Koordinat `[64-byte X,Y point]` adalah **Ephemeral Public Key** yang digenerate acak oleh cluster/HP secara dinamis per sesi, dan langsung dibuang setelah koneksi berakhir. Ini **bukan private key** dan **bukan kredensial rahasia**, sehingga sepenuhnya aman dipublikasikan secara tersanitasi.
 2. **Phone -> Motor (Balasan Public Key Phone `0x0031` / 49)**:
    * Smartphone **wajib** men-generate pasangan kunci EC lokal (`secp256r1`), lalu menghitung Shared Secret ECDH (`KeyAgreement.getInstance("ECDH")`).
    * Smartphone mengirim kembali public key miliknya ke motor:
