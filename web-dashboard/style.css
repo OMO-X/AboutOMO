@@ -1,0 +1,1014 @@
+/* OMOWAY CAN Bus Cockpit - Ultra-Modern Dark Glassmorphism */
+
+:root {
+    --bg-base: #06090e;
+    --bg-surface: rgba(13, 20, 33, 0.75);
+    --bg-surface-hover: rgba(20, 31, 51, 0.85);
+    --bg-card: rgba(16, 25, 41, 0.65);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-active: rgba(0, 240, 255, 0.35);
+
+    --text-primary: #f0f4fc;
+    --text-secondary: #8a99b5;
+    --text-muted: #536482;
+
+    --accent-cyan: #00f0ff;
+    --accent-cyan-glow: rgba(0, 240, 255, 0.3);
+    --accent-blue: #2979ff;
+    --accent-green: #00e676;
+    --accent-green-glow: rgba(0, 230, 118, 0.3);
+    --accent-red: #ff1744;
+    --accent-red-glow: rgba(255, 23, 68, 0.4);
+    --accent-amber: #ffb300;
+
+    --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-base);
+    background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 85% 25%, rgba(41, 121, 255, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 50% 85%, rgba(255, 23, 68, 0.03) 0%, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.font-mono {
+    font-family: var(--font-mono);
+}
+
+.app-container {
+    max-width: 1540px;
+    margin: 0 auto;
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Header & Top Navigation */
+.top-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: var(--bg-surface);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.brand-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.brand-logo-badge {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(41, 121, 255, 0.3));
+    border: 1px solid var(--accent-cyan);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px var(--accent-cyan-glow);
+}
+
+.logo-text {
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 1px;
+    color: var(--accent-cyan);
+}
+
+.brand-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, #ffffff, #a2b4d6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-subtle);
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--text-muted);
+}
+
+.status-dot.connected {
+    background-color: var(--accent-green);
+    box-shadow: 0 0 12px var(--accent-green-glow);
+    animation: pulse-green 2s infinite;
+}
+
+.status-dot.disconnected {
+    background-color: var(--accent-red);
+    box-shadow: 0 0 12px var(--accent-red-glow);
+}
+
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.9); }
+}
+
+.metric-pill {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    text-align: right;
+}
+
+.pill-title {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.pill-value {
+    font-size: 15px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--accent-cyan);
+}
+
+.pill-unit {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.btn-toggle-source {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(41, 121, 255, 0.15));
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-toggle-source:hover {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(41, 121, 255, 0.25));
+    box-shadow: 0 0 16px var(--accent-cyan-glow);
+    transform: translateY(-1px);
+}
+
+/* Card Base */
+.card {
+    background: var(--bg-card);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Hero Telemetry Widgets (Row 1) */
+.hero-widgets {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.hero-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 180px;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.card-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+}
+
+.indicator-icon {
+    font-size: 18px;
+}
+
+.numeric-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.metric-huge {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #ffffff;
+}
+
+.metric-unit {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.sub-metrics {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+    margin-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sub-metric {
+    display: flex;
+    flex-direction: column;
+}
+
+.sub-metric .label {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.sub-metric .val {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Brake Card Glow State */
+.brake-card {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.brake-card.active {
+    border-color: var(--accent-red);
+    background: radial-gradient(circle at 50% 50%, rgba(255, 23, 68, 0.18), rgba(16, 25, 41, 0.85));
+    box-shadow: 0 0 40px var(--accent-red-glow);
+}
+
+.brake-indicator-display {
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+    margin: 6px 0;
+    transition: all 0.25s ease;
+}
+
+.brake-text {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+}
+
+.brake-card.active .brake-indicator-display {
+    background: rgba(255, 23, 68, 0.25);
+    border-color: var(--accent-red);
+}
+
+.brake-card.active .brake-text {
+    color: #ffffff;
+    text-shadow: 0 0 12px var(--accent-red-glow);
+}
+
+/* Regen Meter Bar */
+.meter-bar-container {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 8px 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.meter-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+    border-radius: 4px;
+    transition: width 0.2s ease;
+}
+
+.caption-text {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* BMS Section (Row 2) */
+.bms-section {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.section-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.section-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.bms-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.legend-dot.balanced { background: var(--accent-green); }
+.legend-dot.high { background: var(--accent-amber); }
+.legend-dot.low { background: var(--accent-red); }
+
+.cells-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 12px;
+}
+
+.cell-card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-sm);
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.cell-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-cyan);
+}
+
+.cell-num {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.cell-voltage {
+    font-size: 13px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.cell-bar-wrap {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.cell-bar {
+    height: 100%;
+    background: var(--accent-green);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+/* Sniffer Section (Row 3) */
+.sniffer-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.search-input {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    color: #ffffff;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    min-width: 240px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 10px var(--accent-cyan-glow);
+}
+
+.filter-pills {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-pill {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 6px 14px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-pill.active {
+    background: rgba(0, 240, 255, 0.15);
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+}
+
+.table-container {
+    overflow-x: auto;
+    max-height: 440px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+}
+
+.can-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+}
+
+.can-table th {
+    background: rgba(8, 12, 20, 0.85);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.can-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    color: var(--text-secondary);
+}
+
+.can-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.id-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--accent-cyan);
+}
+
+.payload-bytes {
+    display: flex;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.byte-pill {
+    padding: 2px 6px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.byte-pill.diff-flash {
+    background: rgba(0, 240, 255, 0.3);
+    border-color: var(--accent-cyan);
+    color: #ffffff;
+    animation: flash 0.35s ease;
+}
+
+@keyframes flash {
+    0% { background: var(--accent-cyan); color: #000; }
+    100% { background: rgba(0, 240, 255, 0.3); color: #fff; }
+}
+
+/* Footer */
+.app-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================================
+   REALISTIC ADDRESSABLE DRL HEADLIGHT COMPONENT STYLING
+   ============================================================ */
+.drl-component-section {
+    background: radial-gradient(circle at 50% 20%, rgba(20, 28, 45, 0.7) 0%, rgba(10, 14, 23, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.drl-mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.drl-mode-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #555;
+    transition: all 0.3s ease;
+}
+
+.drl-mode-dot.mode-solid {
+    background: #ffffff;
+    box-shadow: 0 0 10px #ffffff;
+}
+
+.drl-mode-dot.mode-running {
+    background: var(--accent-cyan);
+    box-shadow: 0 0 10px var(--accent-cyan);
+    animation: pulse-dot 1s infinite alternate;
+}
+
+.drl-mode-dot.mode-breathing {
+    background: #80d8ff;
+    box-shadow: 0 0 12px #80d8ff;
+    animation: breath-dot 2.5s infinite ease-in-out;
+}
+
+.drl-mode-dot.mode-off {
+    background: #444a56;
+    box-shadow: none;
+}
+
+@keyframes pulse-dot {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    100% { transform: scale(1.3); opacity: 1; }
+}
+
+@keyframes breath-dot {
+    0%, 100% { transform: scale(0.85); opacity: 0.4; box-shadow: 0 0 4px #80d8ff; }
+    50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 16px #80d8ff; }
+}
+
+/* Headlight Physical Housing */
+.headlight-housing {
+    position: relative;
+    background: linear-gradient(180deg, #0d121c 0%, #06080d 100%);
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 26px 22px 34px 22px;
+    margin: 18px 0;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75), inset 0 2px 4px rgba(255, 255, 255, 0.15), inset 0 0 35px rgba(0, 0, 0, 0.9);
+    overflow: hidden;
+    transition: all 0.5s ease;
+}
+
+/* Breathing Welcome Mode - Realistic Diode Modulation */
+.headlight-housing.mode-breathing {
+    border-color: rgba(128, 216, 255, 0.4);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75), inset 0 2px 4px rgba(255, 255, 255, 0.15), inset 0 0 35px rgba(0, 240, 255, 0.15);
+}
+
+.headlight-housing.mode-breathing .drl-led-segment.lit .led-diode-core {
+    animation: drl-breathe-glow 2.4s infinite ease-in-out !important;
+}
+
+.headlight-housing.mode-breathing .center-drl-dot.active {
+    animation: drl-breathe-glow 2.4s infinite ease-in-out !important;
+}
+
+.headlight-housing.mode-breathing .drl-ground-spill {
+    animation: drl-spill-breathe 2.4s infinite ease-in-out !important;
+}
+
+@keyframes drl-breathe-glow {
+    0%, 100% {
+        opacity: 0.18;
+        filter: brightness(0.65);
+        box-shadow: 0 0 4px rgba(255, 255, 255, 0.35), 0 0 10px rgba(0, 240, 255, 0.2);
+    }
+    50% {
+        opacity: 1.0;
+        filter: brightness(1.25);
+        box-shadow: 
+            0 0 16px rgba(255, 255, 255, 0.95),
+            0 0 28px rgba(200, 240, 255, 0.8),
+            0 0 42px rgba(0, 240, 255, 0.5);
+    }
+}
+
+@keyframes drl-spill-breathe {
+    0%, 100% {
+        opacity: 0.12;
+        transform: scale(0.92);
+    }
+    50% {
+        opacity: 0.85;
+        transform: scale(1.05);
+    }
+}
+
+.headlight-glass-reflection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(170deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.015) 35%, transparent 60%);
+    pointer-events: none;
+    z-index: 5;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+}
+
+.headlight-strip-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Symmetrical Angled DRL Wings */
+.drl-wing {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    gap: 4px;
+    padding: 12px 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.drl-wing.left-wing {
+    transform: perspective(800px) rotateY(6deg);
+    border-left: 2px solid rgba(255, 255, 255, 0.18);
+}
+
+.drl-wing.right-wing {
+    transform: perspective(800px) rotateY(-6deg);
+    border-right: 2px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Individual Addressable LED Segment Diode */
+.drl-led-segment {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 74px;
+    padding: 5px 2px;
+    background: #11151e;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    position: relative;
+    cursor: default;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+}
+
+.drl-led-segment .led-addr-label {
+    font-size: 8.5px;
+    font-family: var(--font-mono);
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: -0.5px;
+    line-height: 1;
+    transition: color 0.15s ease;
+}
+
+.drl-led-segment .led-diode-core {
+    width: 82%;
+    height: 40px;
+    border-radius: 3px;
+    background: #1a202c;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.drl-led-segment .led-bit-label {
+    font-size: 8px;
+    font-family: var(--font-mono);
+    color: rgba(255, 255, 255, 0.28);
+    line-height: 1;
+    transition: color 0.15s ease;
+}
+
+/* Lit State */
+.drl-led-segment.lit {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.drl-led-segment.lit .led-addr-label {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 700;
+}
+
+.drl-led-segment.lit .led-bit-label {
+    color: #00f0ff;
+    font-weight: 700;
+}
+
+.drl-led-segment.lit .led-diode-core {
+    background: #ffffff;
+    box-shadow: 
+        0 0 calc(10px * var(--glow-intensity, 1)) rgba(255, 255, 255, 0.95),
+        0 0 calc(20px * var(--glow-intensity, 1)) rgba(220, 240, 255, 0.75),
+        0 0 calc(32px * var(--glow-intensity, 1)) rgba(0, 240, 255, 0.4);
+    opacity: var(--led-brightness, 1);
+}
+
+/* Hover effect on individual diode */
+.drl-led-segment:hover {
+    border-color: var(--accent-cyan);
+    transform: translateY(-2px);
+    z-index: 10;
+}
+
+/* Center Emblem / Projector Accent */
+.drl-center-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 86px;
+    height: 74px;
+    background: radial-gradient(circle, #1a2336 0%, #0b0f17 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    z-index: 3;
+}
+
+.center-drl-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #232c3d;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 6px;
+    transition: all 0.3s ease;
+}
+
+.center-drl-dot.active {
+    background: #ffffff;
+    box-shadow: 0 0 14px rgba(255, 255, 255, 0.9), 0 0 25px rgba(0, 240, 255, 0.6);
+}
+
+.center-drl-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+/* Ground reflection spill */
+.drl-ground-spill {
+    position: absolute;
+    bottom: -15px;
+    left: 5%;
+    right: 5%;
+    height: 35px;
+    background: radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.25) 0%, rgba(200, 240, 255, 0.1) 45%, transparent 75%);
+    filter: blur(12px);
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+/* Telemetry Grid Below Headlight */
+.drl-telemetry-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1.6fr;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.drl-telemetry-card {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.drl-card-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.drl-num-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.drl-huge-val {
+    font-size: 28px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.drl-sub-val {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-cyan);
+}
+
+.drl-status-tag {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    align-self: flex-start;
+}
+
+/* Bitfield Chips */
+.register-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.reg-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+.reg-label {
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 10px;
+}
+
+.reg-chip .font-mono {
+    color: #00f0ff;
+    font-weight: 700;
+}
+
+.drl-raw-can {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .hero-widgets { grid-template-columns: repeat(2, 1fr); }
+    .cells-grid { grid-template-columns: repeat(8, 1fr); }
+    .drl-telemetry-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .hero-widgets { grid-template-columns: 1fr; }
+    .cells-grid { grid-template-columns: repeat(4, 1fr); }
+    .top-nav { flex-direction: column; gap: 14px; }
+    .drl-telemetry-grid { grid-template-columns: 1fr; }
+    .headlight-strip-container { flex-direction: column; }
+    .drl-wing.left-wing, .drl-wing.right-wing { transform: none; }
+}
+
