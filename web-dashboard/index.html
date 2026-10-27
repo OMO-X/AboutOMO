@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMOWAY CAN Bus Telemetry Cockpit</title>
+    <meta name="description" content="Real-time CAN Bus Telemetry & Diagnostics Dashboard for OMOWAY Smart Electric Motorcycle">
+    <!-- Google Fonts: Outfit & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation / Header -->
+        <header class="top-nav">
+            <div class="brand-section">
+                <div class="brand-logo-badge">
+                    <span class="logo-pulse"></span>
+                    <span class="logo-text">OMO</span>
+                </div>
+                <div>
+                    <h1 class="brand-title">OMOWAY CAN BUS COCKPIT</h1>
+                    <p class="brand-subtitle">Desay SV Cluster & EV Powertrain Telemetry Lab</p>
+                </div>
+            </div>
+
+            <div class="header-controls">
+                <div class="status-badge" id="connection-status">
+                    <span class="status-dot disconnected" id="status-indicator"></span>
+                    <span id="status-label">Menghubungkan ke COM3...</span>
+                </div>
+                <div class="metric-pill">
+                    <span class="pill-title">BUS RATE</span>
+                    <span class="pill-value" id="bus-fps">0</span>
+                    <span class="pill-unit">fps</span>
+                </div>
+                <div class="metric-pill">
+                    <span class="pill-title">TOTAL FRAMES</span>
+                    <span class="pill-value" id="total-frames">0</span>
+                </div>
+                <button class="btn-toggle-source" id="btn-toggle-source" title="Ganti antara hardware COM3 dan Replay Simulasi">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                    <span id="source-label">Hardware COM3</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid">
+            <!-- Row 1: Hero Telemetry Widgets -->
+            <section class="hero-widgets">
+                <!-- Card 1: Brake Lever Status -->
+                <div class="card hero-card brake-card" id="card-brake">
+                    <div class="card-header">
+                        <span class="card-tag">SAFETY INTERLOCK (0x262 / 0x226)</span>
+                        <span class="indicator-icon" id="brake-icon">🛑</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="brake-indicator-display" id="brake-status-badge">
+                            <span class="brake-text" id="brake-status-text">REM BEBAS</span>
+                        </div>
+                        <div class="sub-metrics">
+                            <div class="sub-metric">
+                                <span class="label">Switch (0x262:B4)</span>
+                                <span class="val font-mono" id="brake-switch-val">0x00</span>
+                            </div>
+                            <div class="sub-metric">
+                                <span class="label">Dynamic (0x226:B2)</span>
+                                <span class="val font-mono" id="brake-dyn-val">0x00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Regenerative Torque Request -->
+                <div class="card hero-card regen-card">
+                    <div class="card-header">
+                        <span class="card-tag">REGEN TORQUE REQUEST (0x236)</span>
+                        <span class="indicator-icon">⚡</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="numeric-display">
+                            <span class="metric-huge font-mono" id="regen-torque-val">0</span>
+                            <span class="metric-unit">Nm</span>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar-fill" id="regen-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <p class="caption-text" id="regen-status-caption">E-Braking Inactive (Standstill / Free)</p>
+                    </div>
+                </div>
+
+                <!-- Card 3: BMS Pack Voltage -->
+                <div class="card hero-card battery-card">
+                    <div class="card-header">
+                        <span class="card-tag">BMS PACK VOLTAGE (24S LFP)</span>
+                        <span class="indicator-icon">🔋</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="numeric-display">
+                            <span class="metric-huge font-mono" id="pack-voltage-val">--.--</span>
+                            <span class="metric-unit">V</span>
+                        </div>
+                        <div class="sub-metrics">
+                            <div class="sub-metric">
+                                <span class="label">Avg Cell</span>
+                                <span class="val font-mono" id="cell-avg-val">---- mV</span>
+                            </div>
+                            <div class="sub-metric">
+                                <span class="label">Max Delta</span>
+                                <span class="val font-mono" id="cell-delta-val">-- mV</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Battery Temperatures -->
+                <div class="card hero-card temp-card">
+                    <div class="card-header">
+                        <span class="card-tag">BATTERY PACK THERMAL (0x503 / 0x5F4)</span>
+                        <span class="indicator-icon">🌡️</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="numeric-display">
+                            <span class="metric-huge font-mono" id="pack-temp-val">--</span>
+                            <span class="metric-unit">°C</span>
+                        </div>
+                        <div class="sub-metrics">
+                            <div class="sub-metric">
+                                <span class="label">Probe 1-4</span>
+                                <span class="val font-mono" id="temp-probes-val">-- / -- / -- / -- °C</span>
+                            </div>
+                            <div class="sub-metric">
+                                <span class="label">Module</span>
+                                <span class="val font-mono" id="temp-module-val">-- °C</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Row 1.2: Speedometer & Powertrain Dynamics (0x122 / 0x306 / 0x323) -->
+            <section class="hero-widgets speed-dynamics-row">
+                <!-- Vehicle Speed & Cruise Control -->
+                <div class="card hero-card speed-card">
+                    <div class="card-header">
+                        <span class="card-tag">SPEEDOMETER & CRUISE (0x122)</span>
+                        <span class="indicator-icon">🏎️</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="numeric-display">
+                            <span class="metric-huge font-mono" id="speed-val" style="color: var(--accent-cyan);">0</span>
+                            <span class="metric-unit">km/h</span>
+                        </div>
+                        <div class="sub-metrics">
+                            <div class="sub-metric">
+                                <span class="label">Cruise Control</span>
+                                <span class="val font-mono" id="cruise-status-badge" style="color: var(--text-muted);">STANDBY (OFF)</span>
+                            </div>
+                            <div class="sub-metric">
+                                <span class="label">Sensor Roda</span>
+                                <span class="val font-mono" id="speed-sensor-src">Roda Belakang</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motor RPM -->
+                <div class="card hero-card rpm-card">
+                    <div class="card-header">
+                        <span class="card-tag">ROTASI MESIN BLDC (0x213)</span>
+                        <span class="indicator-icon">🔄</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="numeric-display">
+                            <span class="metric-huge font-mono" id="rpm-val" style="color: #ffb74d;">0</span>
+                            <span class="metric-unit">RPM</span>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar-fill" id="rpm-bar-fill" style="width: 0%; background: linear-gradient(90deg, #ffb74d, #ff5722);"></div>
+                        </div>
+                        <div class="sub-metrics" style="margin-top: 6px;">
+                            <div class="sub-metric">
+                                <span class="label">Raw Hex (Offset -0x8000)</span>
+                                <span class="val font-mono" id="rpm-raw">0x7FFF (0 RPM)</span>
+                            </div>
+                            <div class="sub-metric">
+                                <span class="label">Maksimal</span>
+                                <span class="val font-mono">3000 RPM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suhu BLDC Motor -->
+                <div class="card hero-card bldc-temp-card">
+                    <div class="card-header">
+                        <span class="card-tag">SUHU MOTOR BLDC (0x323:B5)</span>
+                        <span class="indicator-icon">⚙️</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="numeric-display">
+                            <span class="metric-huge font-mono" id="bldc-temp-val">--</span>
+                            <span class="metric-unit">°C</span>
+                        </div>
+                        <div class="sub-metrics">
+                            <div class="sub-metric">
+                                <span class="label">Raw Hex (Offset -40)</span>
+                                <span class="val font-mono" id="bldc-temp-raw">--</span>
+                            </div>
+                            <div class="sub-metric">
+                                <span class="label">Kondisi</span>
+                                <span class="val font-mono" style="color: var(--accent-green);">Optimal Dingin</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suhu Controller / Inverter MCU -->
+                <div class="card hero-card mcu-temp-card">
+                    <div class="card-header">
+                        <span class="card-tag">SUHU CONTROLLER MCU (0x323:B4)</span>
+                        <span class="indicator-icon">💻</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="numeric-display">
+                            <span class="metric-huge font-mono" id="mcu-temp-val">--</span>
+                            <span class="metric-unit">°C</span>
+                        </div>
+                        <div class="sub-metrics">
+                            <div class="sub-metric">
+                                <span class="label">Raw Hex (Offset -40)</span>
+                                <span class="val font-mono" id="mcu-temp-raw">--</span>
+                            </div>
+                            <div class="sub-metric">
+                                <span class="label">Kondisi</span>
+                                <span class="val font-mono" style="color: var(--accent-green);">Normal Siap</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Row 1.5: Cluster Dashboard Ground Truth (ODO, Range, Trip, SOC) -->
+            <section class="hero-widgets cluster-row">
+                <!-- Odometer -->
+                <div class="card hero-card">
+                    <div class="card-header">
+                        <span class="card-tag">ODOMETER TOTAL (0x272:B5-B6)</span>
+                        <span class="indicator-icon">🛣️</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="numeric-display">
+                            <span class="metric-huge font-mono" id="odo-val">2117.1</span>
+                            <span class="metric-unit">km</span>
+                        </div>
+                        <div class="sub-metrics">
+                            <div class="sub-metric">
+                                <span class="label">Raw Big-Endian</span>
+                                <span class="val font-mono" id="odo-raw">0x52B3 (21171)</span>
+                            </div>
+                            <div class="sub-metric">
+                                <span class="label">Resolusi</span>
+                                <span class="val font-mono">0.1 km / 100m</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remaining Range -->
+                <div class="card hero-card">
+                    <div class="card-header">
+                        <span class="card-tag">SISA JARAK ESTIMASI (0x272:B7)</span>
+                        <span class="indicator-icon">📍</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="numeric-display">
+                            <span class="metric-huge font-mono" id="range-val">121</span>
+                            <span class="metric-unit">km</span>
+                        </div>
+                        <div class="sub-metrics">
+                            <div class="sub-metric">
+                                <span class="label">Raw Hex</span>
+                                <span class="val font-mono" id="range-raw">0x79</span>
+                            </div>
+                            <div class="sub-metric">
+                                <span class="label">Status</span>
+                                <span class="val font-mono" style="color: var(--accent-green);">Aman</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trip Meter -->
+                <div class="card hero-card">
+                    <div class="card-header">
+                        <span class="card-tag">TRIP SEJAK KONTAK ON (SPEEDOMETER)</span>
+                        <span class="indicator-icon">⏱️</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="numeric-display">
+                            <span class="metric-huge font-mono" id="trip-val">0.0</span>
+                            <span class="metric-unit">km</span>
+                        </div>
+                        <div class="sub-metrics">
+                            <div class="sub-metric">
+                                <span class="label">Jarak Perjalanan</span>
+                                <span class="val font-mono" id="trip-m-val">0 meter</span>
+                            </div>
+                            <div class="sub-metric">
+                                <span class="label">Siklus Cluster</span>
+                                <span class="val font-mono" id="trip-status-val" style="color: var(--accent-green);">Reset Saat Mati</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Battery SOC -->
+                <div class="card hero-card">
+                    <div class="card-header">
+                        <span class="card-tag">BATTERY SOC CLUSTER</span>
+                        <span class="indicator-icon">⚡</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="numeric-display">
+                            <span class="metric-huge font-mono" id="soc-val" style="color: var(--accent-cyan);">58</span>
+                            <span class="metric-unit">%</span>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar-fill" id="soc-bar-fill" style="width: 58%; background: linear-gradient(90deg, #00e676, #00f0ff);"></div>
+                        </div>
+                        <p class="caption-text">Cell Avg 3.288V • Pack Nominal 78.9V</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Row 1.8: Realistic Addressable DRL Lightbar Component -->
+            <section class="card drl-component-section" id="drl-section">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">OMOWAY Addressable DRL Headlight Array (CAN ID: 0x233)</h2>
+                        <p class="section-subtitle">Visualisasi fisik segmen LED addressable dengan modulasi kecerahan PWM real-time</p>
+                    </div>
+                    <div class="drl-mode-badge" id="drl-mode-badge">
+                        <span class="drl-mode-dot mode-off" id="drl-mode-dot"></span>
+                        <span id="drl-mode-name">DRL MATI (STANDBY)</span>
+                    </div>
+                </div>
+
+                <!-- Physical DRL Headlight Housing & LED Diode Array -->
+                <div class="headlight-housing">
+                    <div class="headlight-glass-reflection"></div>
+                    <div class="headlight-strip-container">
+                        <!-- Left Wing (16 LED Segments) -->
+                        <div class="drl-wing left-wing" id="drl-left-wing">
+                            <!-- Populated with 16 addressable LED diodes via JS -->
+                        </div>
+
+                        <!-- Center Emblem / Logo Light -->
+                        <div class="drl-center-badge">
+                            <span class="center-drl-dot" id="center-drl-dot"></span>
+                            <span class="center-drl-label">OMO DRL</span>
+                        </div>
+
+                        <!-- Right Wing (16 LED Segments) -->
+                        <div class="drl-wing right-wing" id="drl-right-wing">
+                            <!-- Populated with 16 addressable LED diodes via JS -->
+                        </div>
+                    </div>
+                    <!-- Ground Reflection / Lighting Spill Glow -->
+                    <div class="drl-ground-spill" id="drl-ground-spill"></div>
+                </div>
+
+                <!-- Numeric Telemetry & Address Bit Register Grid -->
+                <div class="drl-telemetry-grid">
+                    <!-- Left PWM Numeric Card -->
+                    <div class="drl-telemetry-card">
+                        <span class="drl-card-label">KECERAHAN KIRI (PWM B6)</span>
+                        <div class="drl-num-display">
+                            <span class="drl-huge-val font-mono" id="drl-pwm-left-num">0</span>
+                            <span class="drl-sub-val font-mono" id="drl-pwm-left-pct">(0.0%)</span>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar-fill" id="drl-pwm-left-bar" style="width: 0%; background: #ffffff;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right PWM Numeric Card -->
+                    <div class="drl-telemetry-card">
+                        <span class="drl-card-label">KECERAHAN KANAN (PWM B7)</span>
+                        <div class="drl-num-display">
+                            <span class="drl-huge-val font-mono" id="drl-pwm-right-num">0</span>
+                            <span class="drl-sub-val font-mono" id="drl-pwm-right-pct">(0.0%)</span>
+                        </div>
+                        <div class="meter-bar-container">
+                            <div class="meter-bar-fill" id="drl-pwm-right-bar" style="width: 0%; background: #ffffff;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Active Diode Count -->
+                    <div class="drl-telemetry-card">
+                        <span class="drl-card-label">SEGMEN AKTIF</span>
+                        <div class="drl-num-display">
+                            <span class="drl-huge-val font-mono" id="drl-active-led-count">0</span>
+                            <span class="drl-sub-val font-mono">/ 32 LED</span>
+                        </div>
+                        <span class="drl-status-tag" id="drl-anim-speed">Mati (Kontak Off / Standby)</span>
+                    </div>
+
+                    <!-- Address Bit Registers (Byte 1 .. 5) -->
+                    <div class="drl-telemetry-card bitfield-card">
+                        <span class="drl-card-label">REGISTER ALAMAT LED (B1 .. B5)</span>
+                        <div class="register-chips">
+                            <div class="reg-chip"><span class="reg-label">B1</span><span class="font-mono" id="reg-b1">0x7F</span></div>
+                            <div class="reg-chip"><span class="reg-label">B2</span><span class="font-mono" id="reg-b2">0xDF</span></div>
+                            <div class="reg-chip"><span class="reg-label">B3</span><span class="font-mono" id="reg-b3">0xF7</span></div>
+                            <div class="reg-chip"><span class="reg-label">B4</span><span class="font-mono" id="reg-b4">0xFD</span></div>
+                            <div class="reg-chip"><span class="reg-label">B5</span><span class="font-mono" id="reg-b5">0xFF</span></div>
+                        </div>
+                        <span class="drl-raw-can font-mono" id="drl-raw-can-preview">Payload: 00 7F DF F7 FD FF 78 78</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Row 2: BMS 24-Cell Heatmap Matrix -->
+            <section class="card bms-section">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">BMS 24-Cell Individual Voltage Matrix (LFP 24S)</h2>
+                        <p class="section-subtitle">Real-time sampling frame 0x504 s/d 0x554 (16-bit Big-Endian mV)</p>
+                    </div>
+                    <div class="bms-legend">
+                        <span class="legend-item"><span class="legend-dot balanced"></span> Normal (3.25V - 3.35V)</span>
+                        <span class="legend-item"><span class="legend-dot high"></span> High (&gt; 3.40V)</span>
+                        <span class="legend-item"><span class="legend-dot low"></span> Low (&lt; 3.10V)</span>
+                    </div>
+                </div>
+                <div class="cells-grid" id="cells-grid">
+                    <!-- Generated via JS for 24 cells -->
+                </div>
+            </section>
+
+            <!-- Row 3: Live CAN Sniffer & Packet Inspector -->
+            <section class="card sniffer-section">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Live CAN Frame Inspector (500 kbps)</h2>
+                        <p class="section-subtitle">Matriks frame terdeteksi dengan visualisasi byte dinamis</p>
+                    </div>
+                    <div class="table-actions">
+                        <input type="text" id="filter-input" class="search-input" placeholder="Cari CAN ID / Nama...">
+                        <div class="filter-pills" id="filter-pills">
+                            <button class="filter-pill active" data-filter="all">Semua (40)</button>
+                            <button class="filter-pill" data-filter="safety">Safety / Rem</button>
+                            <button class="filter-pill" data-filter="bms">BMS (0x5xx)</button>
+                            <button class="filter-pill" data-filter="powertrain">Powertrain (Fast Loop)</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="can-table" id="can-table">
+                        <thead>
+                            <tr>
+                                <th>CAN ID</th>
+                                <th>Subsistem & Fungsi</th>
+                                <th>Freq</th>
+                                <th>DLC</th>
+                                <th>Data Payload (Byte 0 .. 7)</th>
+                                <th>Rolling / CRC</th>
+                                <th>Terakhir Update</th>
+                            </tr>
+                        </thead>
+                        <tbody id="can-tbody">
+                            <!-- Populated dynamically via app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <span>OMOWAY Reverse Engineering Lab • Desay SV MapCast & CAN Architecture</span>
+            <span class="font-mono">COM3 @ 500000 bps • Standard 11-bit CAN 2.0A</span>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
